@@ -5,8 +5,9 @@ Tests for the cufile module.
 import os
 import ctypes
 import time
-from cuda.bindings import driver as cuda
-from cufile import CuFile
+
+from maca.bindings import mc as maca
+from mcfile import CuFile
 
 BUF_SIZE = int(os.environ.get("TEST_CUFILE_BUF_SIZE", 256)) * 1024 * 1024
 WORK_DIR = os.environ.get("TEST_CUFILE_WORK_DIR", ".")
@@ -15,22 +16,22 @@ CUDA_DEVICE = int(os.environ.get("TEST_CUFILE_CUDA_DEVICE", 0))
 
 file_path = os.path.join(WORK_DIR, "test.bin")
 
-(err,) = cuda.cuInit(0)
-assert err == 0, f"cuInit failed: {err}"
-err, device = cuda.cuDeviceGet(CUDA_DEVICE)
-assert err == 0, f"cuDeviceGet failed: {err}"
-params = cuda.CUctxCreateParams()
-assert params is not None
-err, context = cuda.cuCtxCreate(params, 0, device)
-assert err == 0, f"cuCtxCreate failed: {err}"
-err, dptr_w = cuda.cuMemAlloc(BUF_SIZE)
-assert err == 0, f"cuMemAlloc failed: {err}"
-err, dptr_r = cuda.cuMemAlloc(BUF_SIZE)
-assert err == 0, f"cuMemAlloc failed: {err}"
-err, hptr = cuda.cuMemAllocHost(BUF_SIZE)
-assert err == 0, f"cuMemAllocHost failed: {err}"
-(err,) = cuda.cuMemsetD8(dptr_w, PATTERN_BYTE, BUF_SIZE)
-assert err == 0, f"cuMemsetD8 failed: {err}"
+(err,) = maca.mcInit(0)
+assert err == 0, f"mcInit failed: {err}"
+err, device = maca.mcDeviceGet(CUDA_DEVICE)
+assert err == 0, f"mcDeviceGet failed: {err}"
+# params = maca.CUctxCreateParams()
+# assert params is not None
+err, context = maca.mcCtxCreate(0, device)
+assert err == 0, f"mcCtxCreate failed: {err}"
+err, dptr_w = maca.mcMalloc(BUF_SIZE)
+assert err == 0, f"mcMemAlloc failed: {err}"
+err, dptr_r = maca.mcMalloc(BUF_SIZE)
+assert err == 0, f"mcMemAlloc failed: {err}"
+err, hptr = maca.mcMallocHost(BUF_SIZE, 0)
+assert err == 0, f"mcMemAllocHost failed: {err}"
+(err,) = maca.mcMemsetD8(dptr_w, PATTERN_BYTE, BUF_SIZE)
+assert err == 0, f"mcMemsetD8 failed: {err}"
 
 
 def test_cufile_initialization():
@@ -75,9 +76,9 @@ def test_cufile_read_write_with_context_manager():
         f"FULL READ {ret / 1024 / 1024:.2f}MB in {dt * 1e3:.2f}ms ({ret / dt / 1024 / 1024 / 1024:.2f}GB/s)"
     )
 
-    (err,) = cuda.cuMemcpyDtoH(hptr, dptr_r, BUF_SIZE)
-    assert err == 0, f"cuMemcpyDtoH failed: {err}"
-    host_buf = (ctypes.c_ubyte * BUF_SIZE).from_address(hptr)
+    (err,) = maca.mcMemcpyDtoH(hptr, dptr_r, BUF_SIZE)
+    assert err == 0, f"mcMemcpyDtoH failed: {err}"
+    host_buf = (ctypes.c_ubyte * BUF_SIZE).from_address(int(hptr))
     for i in range(BUF_SIZE):
         assert host_buf[i] == PATTERN_BYTE
 
@@ -117,9 +118,9 @@ def test_cufile_read_write():
         f"FULL READ {ret / 1024 / 1024:.2f}MB in {dt * 1e3:.2f}ms ({ret / dt / 1024 / 1024 / 1024:.2f}GB/s)"
     )
 
-    (err,) = cuda.cuMemcpyDtoH(hptr, dptr_r, BUF_SIZE)
-    assert err == 0, f"cuMemcpyDtoH failed: {err}"
-    host_buf = (ctypes.c_ubyte * BUF_SIZE).from_address(hptr)
+    (err,) = maca.mcMemcpyDtoH(hptr, dptr_r, BUF_SIZE)
+    assert err == 0, f"mcMemcpyDtoH failed: {err}"
+    host_buf = (ctypes.c_ubyte * BUF_SIZE).from_address(int(hptr))
     for i in range(BUF_SIZE):
         assert host_buf[i] == PATTERN_BYTE
 

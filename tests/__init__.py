@@ -1,3 +1,3 @@
 """
-Test package for cufile-python.
+Test package for mcfile-python.
 """

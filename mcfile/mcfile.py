@@ -1,16 +1,16 @@
 """
-Main module for CUDA file operations.
+Main module for mcFile operations.
 """
 
 import os
 import ctypes
 from .bindings import (
-    cuFileDriverOpen,
-    cuFileDriverClose,
-    cuFileHandleRegister,
-    cuFileHandleDeregister,
-    cuFileRead,
-    cuFileWrite,
+    mcFileDriverOpen,
+    mcFileDriverClose,
+    mcFileHandleRegister,
+    mcFileHandleDeregister,
+    mcFileRead,
+    mcFileWrite,
 )
 
 
@@ -26,12 +26,12 @@ def _singleton(cls):
 
 
 @_singleton
-class CuFileDriver:
+class McFileDriver:
     def __init__(self):
-        cuFileDriverOpen()
+        mcFileDriverOpen()
 
     def __del__(self):
-        cuFileDriverClose()
+        mcFileDriverClose()
 
 
 def _os_mode(mode: str):
@@ -46,16 +46,16 @@ def _os_mode(mode: str):
     return modes[mode]
 
 
-class CuFile:
+class McFile:
     """
-    Main class for CUDA file operations.
+    Main class for mcfile operations.
     """
 
-    def __init__(self, path: str, mode: str = "r", use_direct_io: bool = False):
+    def __init__(self, path: str, mode: str = "r", use_direct_io: bool = True):
         """
         Initialize the CuFile instance.
         """
-        self._driver = CuFileDriver()
+        self._driver = McFileDriver()
         self._path = path
         self._mode = mode
         self._os_mode = _os_mode(mode)
@@ -81,13 +81,13 @@ class CuFile:
         if self.is_open:
             return
         self._handle = os.open(self._path, self._os_mode)
-        self._cu_file_handle = cuFileHandleRegister(self._handle)
+        self._cu_file_handle = mcFileHandleRegister(self._handle)
 
     def close(self):
         """Deregisters the handle and closes the file."""
         if not self.is_open:
             return
-        cuFileHandleDeregister(self._cu_file_handle)
+        mcFileHandleDeregister(self._cu_file_handle)
         os.close(self._handle)
         self._handle = None
         self._cu_file_handle = None
@@ -111,7 +111,7 @@ class CuFile:
         """Read from the file."""
         if not self.is_open:
             raise IOError("File is not open.")
-        return cuFileRead(self._cu_file_handle, dest, size, file_offset, dev_offset)
+        return mcFileRead(self._cu_file_handle, dest, size, file_offset, dev_offset)
 
     def write(
         self, src: ctypes.c_void_p, size: int, file_offset: int = 0, dev_offset: int = 0
@@ -119,7 +119,7 @@ class CuFile:
         """Write to the file."""
         if not self.is_open:
             raise IOError("File is not open.")
-        return cuFileWrite(self._cu_file_handle, src, size, file_offset, dev_offset)
+        return mcFileWrite(self._cu_file_handle, src, size, file_offset, dev_offset)
 
     def get_handle(self):
         """Get the file handle."""

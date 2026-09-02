@@ -1,11 +1,12 @@
-# cufile-python
+# mcfile-python
 
-A basic Python wrapper for the NVidia cuFile API
+A basic Python wrapper for the MACA mcFile API.
 
+This repo is forked from https://github.com/yanok/cufile-python.git
 ## Installation
 
 ```bash
-pip install cufile-python
+pip install mcfile-python
 ```
 
 ## Usage
@@ -13,7 +14,7 @@ pip install cufile-python
 Basic usage with the `CuFile` context manager:
 
 ```python
-from cufile import CuFile
+from mcfile import CuFile
 import torch
 import ctypes
 
@@ -23,7 +24,7 @@ with CuFile("test.bin", "r") as f:
     f.read(ctypes.c_void_p(t.data_ptr()), t.nbytes)
 ```
 
-Alternatively one could `import cufile.bindings` and use it as if calling libcufile from C++.
+Alternatively one could `import mcfile.bindings` and use it as if calling libmcfile from C++.
 
 ## Development
 
@@ -31,8 +32,8 @@ To set up the development environment:
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yanok/cufile-python.git
-cd cufile-python
+git clone https://github.com/MetaX-MACA/mcfile-python.git
+cd mcfile-python
 ```
 
 2. Install development dependencies:

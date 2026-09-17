@@ -105,6 +105,7 @@ def register_buffer(buf: torch.Tensor) -> None:
     if not buf.is_cuda:
         raise ValueError("register_buffer: tensor must be on CUDA")
 
+    print("++++++ debug, enter mcfile register_buffer ------")
     nbytes = buf.numel() * buf.element_size()
     _ck(
         libmcfile.mcFileBufRegister(
@@ -274,6 +275,7 @@ class AsyncHandle:
         ``buf.data_ptr()``). ``buf_offset`` is the byte offset within
         that registration that the data should land at.
         """
+        print("++++++ debug, enter mcfile read_async ------")
         sub = Submission(size=size, file_offset=file_offset, buf_offset=buf_offset)
         if async_supported:
             _ck(
@@ -314,6 +316,7 @@ class AsyncHandle:
         raw_stream: int,
     ) -> Submission:
         """Enqueue a ``mcFileWriteAsync`` on the stream."""
+        print("++++++ debug, enter mcfile write_async ------")
         sub = Submission(size=size, file_offset=file_offset, buf_offset=buf_offset)
         if async_supported:
             _ck(

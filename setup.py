@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 setup(
     name="mcfile-python",
     version="0.2.1",
-    packages=find_packages(),
+    packages=find_packages(exclude=["tests", "tests.*"]),
     install_requires=[],
     author="mx-cnie",
     author_email="developer@metex-tech.com",
